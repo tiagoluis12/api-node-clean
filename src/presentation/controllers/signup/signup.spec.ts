@@ -147,6 +147,24 @@ describe('SignUp Controller', () => {
     expect(isValidSpy).toHaveBeenCalledWith('invalid_email@gmail.com')
   })
 
+  test('It should return 500 if AddAccount throws', () => {
+    const { sut, AddAccountStub } = makeSut()
+    jest.spyOn(AddAccountStub, 'add').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@gmail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
   test('It should call AddAccount with correct values', () => {
     const { sut, AddAccountStub } = makeSut()
     const addSpy = jest.spyOn(AddAccountStub, 'add')
